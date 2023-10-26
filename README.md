@@ -26,6 +26,8 @@ Antes de executar o projeto, é necessário ter o seguinte software instalado em
 
 [Node.js](https://nodejs.org/en) - Certifique-se de que o Node.js está instalado em sua máquina.
 
+[Expo CLI](https://docs.expo.dev/get-started/installation/) - Para criar e executar projetos React Native.
+
 ### Configuração do Projeto.
 
 Siga as etapas abaixo para configurar o projeto em seu ambiente local:
