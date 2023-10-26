@@ -1,4 +1,5 @@
-import { ReactNode, createContext, useState } from 'react'
+/* eslint-disable react-hooks/exhaustive-deps */
+import { ReactNode, createContext, useEffect, useState } from 'react'
 import { UserDTO, UserSignUpDTO } from '@dtos/UserDTO'
 import { api } from '@services/api'
 
@@ -105,6 +106,14 @@ export function AuthContextProvider({ children }: AuthContextProviderProps) {
       throw error
     }
   }
+
+  useEffect(() => {
+    const subscribe = api.registerInterceptTokenManager(signOut)
+
+    return () => {
+      subscribe()
+    }
+  }, [signOut])
 
   return (
     <AuthContext.Provider
