@@ -10,7 +10,7 @@ import {
   Image,
   Pressable,
 } from 'native-base'
-import { useCallback, useContext, useState } from 'react'
+import { useCallback, useContext, useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useFocusEffect, useNavigation } from '@react-navigation/native'
 import * as ImagePicker from 'expo-image-picker'
@@ -50,6 +50,7 @@ export function NewProduct() {
     ImagePicker.ImagePickerAsset[]
   >([])
   const [loading, setLoading] = useState(true)
+  const [isSendProduct, setIsSendProduct] = useState(false)
   const [defaultValues, setDefaultValues] = useState<ProductDTO>(
     {} as ProductDTO,
   )
@@ -68,6 +69,7 @@ export function NewProduct() {
 
   async function handleNewProduct(data: NewProductRequest) {
     try {
+      setIsSendProduct(true)
       if (imagesSelected.length === 0) {
         throw new AppError('Selecione as imagens do produto.')
       }
@@ -86,6 +88,8 @@ export function NewProduct() {
         placement: 'top',
         bgColor: 'red.500',
       })
+    } finally {
+      setIsSendProduct(false)
     }
   }
 
@@ -126,6 +130,16 @@ export function NewProduct() {
       fetchProductInStorage()
     }, []),
   )
+
+  useEffect(() => {
+    Object.values(errors).map((error) =>
+      toast.show({
+        title: error.message,
+        placement: 'top',
+        bgColor: 'red.500',
+      }),
+    )
+  }, [errors])
 
   if (loading) return <Loading />
 
@@ -209,7 +223,7 @@ export function NewProduct() {
         defaultValue={
           defaultValues.is_new ? (defaultValues.is_new ? 'new' : 'usage') : ''
         }
-        render={({ field: { onChange } }) => (
+        render={({ field: { onChange, value } }) => (
           <IsNewRadio
             name="new"
             onChange={onChange}
@@ -220,6 +234,7 @@ export function NewProduct() {
                   : 'usage'
                 : ''
             }
+            value={value}
           />
         )}
       />
@@ -308,6 +323,7 @@ export function NewProduct() {
           colorText="gray.700"
           bgColor={'gray.100'}
           maxW={'48%'}
+          isLoading={isSendProduct}
           onPress={handleSubmit(handleNewProduct)}
         />
       </HStack>
