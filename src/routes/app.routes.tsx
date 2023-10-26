@@ -1,24 +1,102 @@
 import {
-  createNativeStackNavigator,
-  NativeStackNavigationProp,
-} from '@react-navigation/native-stack'
-import { SignIn } from '@screens/SignIn'
-import { SignUp } from '@screens/SignUp'
+  createBottomTabNavigator,
+  BottomTabNavigationProp,
+} from '@react-navigation/bottom-tabs'
 
-type AuthRoutes = {
-  signIn: undefined
-  signUp: undefined
+import { Home } from '@screens/Home'
+import { Pressable, useTheme } from 'native-base'
+import { Platform } from 'react-native'
+
+import { House, Plus, SignOut, Tag } from 'phosphor-react-native'
+import { useNavigation } from '@react-navigation/native'
+import { useContext } from 'react'
+import { AuthContext } from '../context/AuthContext'
+import { MyProducts } from '@screens/MyProducts'
+
+type AppRoutes = {
+  homeTab: undefined
+  myProducts: undefined
+  logout: undefined
 }
 
-export type AuthNavigatorRoutesProps = NativeStackNavigationProp<AuthRoutes>
+export type AppNavigatorRoutesProps = BottomTabNavigationProp<AppRoutes>
 
-const { Navigator, Screen } = createNativeStackNavigator<AuthRoutes>()
+const { Navigator, Screen } = createBottomTabNavigator<AppRoutes>()
 
-export function AuthRoutes() {
+function SignOutComponent() {
+  const { signOut } = useContext(AuthContext)
+
+  try {
+    signOut()
+  } catch (error) {}
+  return null // Esta tela não terá conteúdo
+}
+
+export function AppRoutes() {
+  const navigation = useNavigation()
+  const { sizes, colors } = useTheme()
+
+  const iconSize = sizes[6]
+
   return (
-    <Navigator screenOptions={{ headerShown: false }} initialRouteName="signIn">
-      <Screen name="signIn" component={SignIn} />
-      <Screen name="signUp" component={SignUp} />
-    </Navigator>
+    <>
+      <Navigator
+        screenOptions={{
+          headerShown: false,
+          tabBarShowLabel: false,
+          tabBarActiveTintColor: colors.gray[200],
+          tabBarInactiveTintColor: colors.gray[400],
+          tabBarStyle: {
+            backgroundColor: colors.gray[700],
+            borderTopWidth: 0,
+            height: Platform.OS === 'android' ? 'auto' : 80,
+          },
+        }}
+        initialRouteName="homeTab"
+      >
+        <Screen
+          name="homeTab"
+          options={{
+            tabBarIcon: ({ color }) => (
+              <House size={iconSize} weight="bold" color={color} />
+            ),
+          }}
+          component={Home}
+        />
+
+        <Screen
+          name="myProducts"
+          options={{
+            headerShown: true,
+            headerTitle: 'Meus anúncios',
+            headerStyle: {
+              backgroundColor: '#EDECEE',
+            },
+            headerRight: () => (
+              <Pressable
+                mr={6}
+                onPress={() => navigation.navigate('newProduct')}
+              >
+                <Plus />
+              </Pressable>
+            ),
+            tabBarIcon: ({ color }) => (
+              <Tag size={iconSize} weight="bold" color={color} />
+            ),
+          }}
+          component={MyProducts}
+        />
+
+        <Screen
+          name="logout"
+          options={{
+            tabBarIcon: () => (
+              <SignOut size={iconSize} weight="bold" color={'#E07878'} />
+            ),
+          }}
+          component={SignOutComponent}
+        />
+      </Navigator>
+    </>
   )
 }
